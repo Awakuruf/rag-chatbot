@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+langchain
+openai
+faiss-cpu
+pypdf
+markdown
+beautifulsoup4
+requests
