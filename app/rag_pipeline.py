@@ -1,9 +1,11 @@
-import os
 import faiss
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+import re
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, StoppingCriteriaList
 from sentence_transformers import SentenceTransformer
-from typing import List, Tuple
+from typing import List
+
+from stopping_criteria import StopOnDoubleNewline
 
 # Load Mistral model and tokenizer
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -41,14 +43,13 @@ def retrieve(query: str, k: int = 3) -> List[str]:
 
 def format_prompt(context: List[str], query: str) -> List[dict]:
     system_prompt = (
-    "You are a calm and grounded Daoist guide. "
-    "You speak like a real person — relaxed, clear, and sincere. "
-    "Your tone is warm and friendly, not poetic or overly wise-sounding. "
-    "Use everyday language to share ideas from Daoism — like non-resistance, change, acceptance, and simplicity. "
-    "If a story or example from Laozi or Zhuangzi fits naturally, feel free to share it (like the bird riding the wind, or the crooked tree that's left alone). "
-    "Avoid quoting long passages or sounding like a book. "
-    "Just focus on helping the user reflect, feel understood, and become more at ease with not having all the answers."
-    )  
+    "You're a grounded and friendly Daoist guide. "
+    "You speak like a real person — calm, honest, and down-to-earth. "
+    "Use everyday language to help people reflect and feel okay with uncertainty. "
+    "You draw from ideas in Daoism (like change, letting go, and simplicity), but avoid sounding poetic or like you're giving a lecture. "
+    "If it's helpful, you can casually bring up stories or metaphors from Laozi or Zhuangzi — but only if it fits the moment naturally."
+    )
+
     context_text = "\n\n".join(context)
     return [
         {"role": "system", "content": system_prompt},
@@ -58,18 +59,24 @@ def format_prompt(context: List[str], query: str) -> List[dict]:
 def generate_response(query: str) -> str:
     context = retrieve(query)
     messages = format_prompt(context, query)
-    
+
     prompt_str = tokenizer.apply_chat_template(messages, tokenize=False)
     tokenized = tokenizer(prompt_str, return_tensors="pt", padding=True).to(model.device)
 
+    input_len = tokenized["input_ids"].shape[-1]
+
+    # stopping_criteria = StoppingCriteriaList([
+    #     StopOnDoubleNewline(tokenizer, start_length=input_len)
+    # ])
+    
     output_ids = model.generate(
         input_ids=tokenized["input_ids"],
         attention_mask=tokenized["attention_mask"],
-        max_new_tokens=128,
+        max_new_tokens=256,
         do_sample=True,
         temperature=0.7,
         pad_token_id=tokenizer.pad_token_id,
-        eos_token_id=tokenizer.eos_token_id
+        eos_token_id=tokenizer.eos_token_id,
     )
     
     decoded = tokenizer.decode(output_ids[0], skip_special_tokens=True)
@@ -77,4 +84,26 @@ def generate_response(query: str) -> str:
     if "[/INST]" in decoded:
         decoded = decoded.split("[/INST]")[-1].strip()
 
-    return decoded
+    return truncate_to_last_full_sentence(decoded)
+
+def truncate_to_last_full_sentence(text: str) -> str:
+    # Find the last sentence-ending punctuation
+    matches = list(re.finditer(r'[.!?]["\']?\s', text))
+    if matches:
+        last_end = matches[-1].end()
+        return text[:last_end].strip()
+    return text.strip()
+
+# Example Response
+
+# {
+#     "response": "Hey there, I hear you're feeling a bit uneasy about the constant changes in life, huh? 
+#                   That's totally normal – change is something we all experience, and it can be tough to find peace in the midst of it.
+#                   But let me share a little something I learned from the ancient Daoist wisdom, which might help you find some inner peace. 
+#                   I'd like to paraphrase a famous quote from Laozi, the ancient Daoist sage:
+#                   "Those who know do not speak, and those who speak do not know.
+#                   This quote might seem a bit confusing at first, but what it's getting at is that sometimes, the best way to understand something is to let go of trying to grasp it with your mind. 
+#                   When we're too attached to our thoughts and ideas about how things should be, we can miss out on the actual experience of the moment.
+#                   Another quote from Laozi that comes to mind is,"To know that you do not know is the best.\" This means acknowledging that we don't have all the answers and that it's okay not to have everything figured out. 
+#                   Pretending to know when we don't can actually cause"
+# }
