@@ -29,20 +29,15 @@ A Retrieval-Augmented Generation (RAG) chatbot powered by Mistral-7B-Instruct, d
 
 ## Quickstart
 
-### 1. Clone the Repo
+### Clone the Repo
 
 ```bash
 git clone https://github.com/Awakuruf/rag-chatbot.git
 cd rag-bot
 ```
 
-### 2. Open in Unity Hub.
+### Make sure your backend is running before pressing Play in Unity.
 
-### 3. Ensure scenes are added to your Build Settings.
-
-### 4. Press Play to explore and interact with the world.
-
-## Python Backend (Chatbot)
 1.Create a virtual environment:
 
 ```bash
@@ -64,27 +59,34 @@ uvicorn main:app --reload
 ```
 
 4. The Unity game will POST messages to http://127.0.0.1:8000/chat.
-- Make sure your backend is running before pressing Play in Unity.
-
+   
 ## Folder Structure
 ```
-Assets/
-  └── Scripts/
-      └── ConversationScene/
-      └── Movements/
-  └── Scenes/
-  └── Textures/ (tracked via Git LFS)
+rag-chatbot/
+│
+├── app/
+│ ├── main.py # FastAPI app with /chat endpoint
+│ ├── rag_pipeline.py # Core RAG logic
+│ ├── ingest.py # Loads + embeds PDF/Markdown/web docs
+│
+├── data/
+│ ├── daodejing.pdf
+│ ├── daodejing_notes.md
+| ├── zhuangzi.pdf
+│ └── zhuangzi_notes.md
+│
+├── requirements.txt
+├── example_responses.txt
+└── README.md
 ```
 
 ## Troubleshooting
-- Stuck pushing to GitHub?
-Use Git LFS and clean large files with BFG.
-
 - Long response times from AI?
 Consider:
- - Reducing max_new_tokens
- - Using smaller models like mistral-7b-instruct in 4-bit mode
- - Chunking your documents more efficiently
+
+    - Reducing max_new_tokens
+    - Using smaller models like mistral-7b-instruct in 4-bit mode
+    - Chunking your documents more efficiently
 
 ## License
 MIT License. Feel free to remix or adapt for educational and non-commercial purposes.
