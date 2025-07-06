@@ -1,11 +1,12 @@
-# 🧠 RAG Chatbot
+# RAG Chatbot
 
 A minimal Retrieval-Augmented Generation (RAG) chatbot that can answer questions based on your **PDF**, **Markdown**, and **web documents**. It uses OpenAI (or other LLMs) and includes a FastAPI backend to serve responses via a `/chat` endpoint.
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
+```
 rag-chatbot/
 │
 ├── app/
@@ -20,21 +21,18 @@ rag-chatbot/
 │
 ├── requirements.txt
 └── README.md
-
-yaml
-Copy
-Edit
+```
 
 ---
 
-## ⚙️ Setup Instructions
+## Setup Instructions
 
 ### 1. Clone the repo
 ```git clone https://github.com/your-username/rag-chatbot.git```
 ```cd rag-chatbot```
 
 2. Install dependencies
-💡 If pip doesn't work, try python -m pip install -r requirements.txt
+ If pip doesn't work, try python -m pip install -r requirements.txt
 ```pip install -r requirements.txt```
 1. Add your documents
 Place .pdf and .md files in the data/ folder.
@@ -54,25 +52,13 @@ curl -X POST http://localhost:8000/chat \
   -d '{"question": "What is this document about?"}'
 ```
 
-#### 📌 Optional: Set your OpenAI API Key
-Set your API key using environment variables.
+### Features
+- PDF, Markdown, and Web ingestion
+- FAISS vector store for fast retrieval
+- OpenAI-powered generation (can swap to local LLMs)
+- FastAPI backend with /chat endpoint
 
-Linux/macOS:
-```export OPENAI_API_KEY=sk-...```
-
-Windows PowerShell:
-```$env:OPENAI_API_KEY="sk-..."```
-
-### 🧠 Features
-✅ PDF, Markdown, and Web ingestion
-
-✅ FAISS vector store for fast retrieval
-
-✅ OpenAI-powered generation (can swap to local LLMs)
-
-✅ FastAPI backend with /chat endpoint
-
-### 🚀 To-Do
+### To-Do
  Add chat memory / session history
 
  Add frontend UI (React, Streamlit, etc.)
@@ -81,5 +67,5 @@ Windows PowerShell:
 
  Swap OpenAI with local model (e.g., Mistral, LLaMA)
 
-### 📄 License
+### License
 MIT License. Use freely with credit appreciated.
