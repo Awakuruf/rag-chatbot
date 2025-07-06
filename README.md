@@ -1,71 +1,90 @@
-# RAG Chatbot
+# RAG-Bot: Daoist-Inspired Conversational Agent
 
-A minimal Retrieval-Augmented Generation (RAG) chatbot that can answer questions based on your **PDF**, **Markdown**, and **web documents**. It uses OpenAI (or other LLMs) and includes a FastAPI backend to serve responses via a `/chat` endpoint.
-
----
-
-## Project Structure
-
-```
-rag-chatbot/
-│
-├── app/
-│ ├── main.py # FastAPI app with /chat endpoint
-│ ├── rag_pipeline.py # Core RAG logic
-│ ├── ingest.py # Loads + embeds PDF/Markdown/web docs
-│
-├── data/
-│ ├── sample.pdf
-│ ├── example.md
-│ └── links.txt # One URL per line
-│
-├── requirements.txt
-└── README.md
-```
+A Retrieval-Augmented Generation (RAG) chatbot powered by Mistral-7B-Instruct, designed to deliver thoughtful, down-to-earth responses inspired by Daoist philosophy (Laozi, Zhuangzi). Built using FastAPI and optimized for lightweight, locally-hosted usage.
 
 ---
 
-## Setup Instructions
+## Features
 
-### 1. Clone the repo
-```git clone https://github.com/your-username/rag-chatbot.git```
-```cd rag-chatbot```
+- 🧠 **RAG Architecture**: Retrieves relevant passages from a corpus of Daoist notes using semantic search with FAISS.
+- 🧾 **Philosophy-Grounded Prompting**: Uses a system message that simulates a grounded Daoist mentor — gentle, honest, and reflective.
+- ⚡ **Quantized Model Inference**: Runs Mistral-7B in 4-bit using bitsandbytes for faster generation on consumer GPUs.
+- 📚 **Dynamic Knowledge Base**: Loads and chunks `.md` notes from Daoist texts into embeddings at startup.
+- 📡 **API Endpoint**: Exposes a clean `POST /chat` route for frontend integration (e.g. Unity or web).
 
-2. Install dependencies
- If pip doesn't work, try python -m pip install -r requirements.txt
-```pip install -r requirements.txt```
-1. Add your documents
-Place .pdf and .md files in the data/ folder.
+---
 
-Add web URLs (one per line) to data/links.txt.
+## Tech Stack
 
-4. Ingest and embed documents
-```python -m app.ingest```
-This will embed your documents and store them using FAISS.
+| Component              | Technology                          |
+|------------------------|--------------------------------------|
+| Language Model         | `mistralai/Mistral-7B-Instruct-v0.2` |
+| Embeddings             | `sentence-transformers/all-MiniLM-L6-v2` |
+| Vector Search          | `FAISS`                             |
+| API Framework          | `FastAPI`                           |
+| Quantization           | `bitsandbytes` (4-bit NF4)          |
+| Tokenizer & Model      | `transformers`                      |
 
-### 1. Start the API server
-```uvicorn app.main:app --reload --port 8000```
-1. Ask a question
+---
+
+## Quickstart
+
+### 1. Clone the Repo
+
+```bash
+git clone https://github.com/<your-username>/rag-bot.git
+cd rag-bot
 ```
-curl -X POST http://localhost:8000/chat \
-  -H "Content-Type: application/json" \
-  -d '{"question": "What is this document about?"}'
+
+### 2. Open in Unity Hub.
+
+### 3. Ensure scenes are added to your Build Settings.
+
+### 4. Press Play to explore and interact with the world.
+
+## Python Backend (Chatbot)
+1.Create a virtual environment:
+
+```bash
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
 ```
 
-### Features
-- PDF, Markdown, and Web ingestion
-- FAISS vector store for fast retrieval
-- OpenAI-powered generation (can swap to local LLMs)
-- FastAPI backend with /chat endpoint
+2. Install dependencies:
 
-### To-Do
- Add chat memory / session history
+```bash
+pip install -r requirements.txt
+```
 
- Add frontend UI (React, Streamlit, etc.)
+3. Run the FastAPI server:
 
- Add support for more file types (DOCX, HTML, etc.)
+```bash
+cd .\app\
+uvicorn main:app --reload
+```
 
- Swap OpenAI with local model (e.g., Mistral, LLaMA)
+4. The Unity game will POST messages to http://127.0.0.1:8000/chat.
+- Make sure your backend is running before pressing Play in Unity.
 
-### License
-MIT License. Use freely with credit appreciated.
+## Folder Structure
+```
+Assets/
+  └── Scripts/
+      └── ConversationScene/
+      └── Movements/
+  └── Scenes/
+  └── Textures/ (tracked via Git LFS)
+```
+
+## Troubleshooting
+- Stuck pushing to GitHub?
+Use Git LFS and clean large files with BFG.
+
+- Long response times from AI?
+Consider:
+ - Reducing max_new_tokens
+ - Using smaller models like mistral-7b-instruct in 4-bit mode
+ - Chunking your documents more efficiently
+
+## License
+MIT License. Feel free to remix or adapt for educational and non-commercial purposes.
