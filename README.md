@@ -32,7 +32,7 @@ A Retrieval-Augmented Generation (RAG) chatbot powered by Mistral-7B-Instruct, d
 ### 1. Clone the Repo
 
 ```bash
-git clone https://github.com/<your-username>/rag-bot.git
+git clone https://github.com/Awakuruf/rag-chatbot.git
 cd rag-bot
 ```
 
