@@ -6,11 +6,11 @@ A Retrieval-Augmented Generation (RAG) chatbot powered by Mistral-7B-Instruct, d
 
 ## Features
 
-- 🧠 **RAG Architecture**: Retrieves relevant passages from a corpus of Daoist notes using semantic search with FAISS.
-- 🧾 **Philosophy-Grounded Prompting**: Uses a system message that simulates a grounded Daoist mentor — gentle, honest, and reflective.
-- ⚡ **Quantized Model Inference**: Runs Mistral-7B in 4-bit using bitsandbytes for faster generation on consumer GPUs.
-- 📚 **Dynamic Knowledge Base**: Loads and chunks `.md` notes from Daoist texts into embeddings at startup.
-- 📡 **API Endpoint**: Exposes a clean `POST /chat` route for frontend integration (e.g. Unity or web).
+-  **RAG Architecture**: Retrieves relevant passages from a corpus of Daoist notes using semantic search with FAISS.
+-  **Philosophy-Grounded Prompting**: Uses a system message that simulates a grounded Daoist mentor — gentle, honest, and reflective.
+-  **Quantized Model Inference**: Runs Mistral-7B in 4-bit using bitsandbytes for faster generation on consumer GPUs.
+-  **Dynamic Knowledge Base**: Loads and chunks `.md` notes from Daoist texts into embeddings at startup.
+-  **API Endpoint**: Exposes a clean `POST /chat` route for frontend integration (e.g. Unity or web).
 
 ---
 
