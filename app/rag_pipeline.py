@@ -4,6 +4,7 @@ import re
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, StoppingCriteriaList
 from sentence_transformers import SentenceTransformer
 from typing import List
+import time
 
 from stopping_criteria import StopOnDoubleNewline
 
@@ -36,7 +37,7 @@ def add_documents(texts: List[str]):
     index.add(embeddings)
     documents.extend(texts)
 
-def retrieve(query: str, k: int = 3) -> List[str]:
+def retrieve(query: str, k: int = 2) -> List[str]:
     query_emb = embedder.encode([query])
     _, I = index.search(query_emb, k)
     return [documents[i] for i in I[0]]
@@ -57,13 +58,20 @@ def format_prompt(context: List[str], query: str) -> List[dict]:
     ]
 
 def generate_response(query: str) -> str:
+    t0 = time.time()
     context = retrieve(query)
+    t1 = time.time()
+    print(f"[Timing] Retrieval took: {t1 - t0:.2f}s")
+    
     messages = format_prompt(context, query)
 
     prompt_str = tokenizer.apply_chat_template(messages, tokenize=False)
     tokenized = tokenizer(prompt_str, return_tensors="pt", padding=True).to(model.device)
+    
+    t2 = time.time()
+    print(f"[Timing] Tokenization took: {t2 - t1:.2f}s")
 
-    input_len = tokenized["input_ids"].shape[-1]
+    # input_len = tokenized["input_ids"].shape[-1]
 
     # stopping_criteria = StoppingCriteriaList([
     #     StopOnDoubleNewline(tokenizer, start_length=input_len)
@@ -73,11 +81,14 @@ def generate_response(query: str) -> str:
         input_ids=tokenized["input_ids"],
         attention_mask=tokenized["attention_mask"],
         max_new_tokens=256,
-        do_sample=True,
-        temperature=0.7,
+        do_sample=False,
+        # temperature=0.7,
         pad_token_id=tokenizer.pad_token_id,
         eos_token_id=tokenizer.eos_token_id,
     )
+    
+    t3 = time.time()
+    print(f"[Timing] Generation took: {t3 - t2:.2f}s")
     
     decoded = tokenizer.decode(output_ids[0], skip_special_tokens=True)
 
@@ -93,17 +104,3 @@ def truncate_to_last_full_sentence(text: str) -> str:
         last_end = matches[-1].end()
         return text[:last_end].strip()
     return text.strip()
-
-# Example Response
-
-# {
-#     "response": "Hey there, I hear you're feeling a bit uneasy about the constant changes in life, huh? 
-#                   That's totally normal – change is something we all experience, and it can be tough to find peace in the midst of it.
-#                   But let me share a little something I learned from the ancient Daoist wisdom, which might help you find some inner peace. 
-#                   I'd like to paraphrase a famous quote from Laozi, the ancient Daoist sage:
-#                   "Those who know do not speak, and those who speak do not know.
-#                   This quote might seem a bit confusing at first, but what it's getting at is that sometimes, the best way to understand something is to let go of trying to grasp it with your mind. 
-#                   When we're too attached to our thoughts and ideas about how things should be, we can miss out on the actual experience of the moment.
-#                   Another quote from Laozi that comes to mind is,"To know that you do not know is the best.\" This means acknowledging that we don't have all the answers and that it's okay not to have everything figured out. 
-#                   Pretending to know when we don't can actually cause"
-# }
